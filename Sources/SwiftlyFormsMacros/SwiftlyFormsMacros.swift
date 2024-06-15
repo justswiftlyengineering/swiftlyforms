@@ -6,3 +6,14 @@
 //
 
 import Foundation
+
+import SwiftCompilerPlugin
+import SwiftSyntax
+import SwiftSyntaxBuilder
+import SwiftSyntaxMacros
+
+
+@main
+struct SwiftlyFormsMacros: CompilerPlugin {
+    let providingMacros: [Macro.Type] = []
+}
