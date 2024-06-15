@@ -29,6 +29,7 @@ public extension SwiftlyFieldValidatorType {
 
 /// A validator that matches against the length of the value it's validating against
 /// - Note: By default, values are considered valid if they are nil. Can be overridden by setting the ``CountLimitValidator.Config.nullablesAreValid``
+/// - Also any item that is not an instance of ``SwiftlyCountable`` is automatically valid
 public class CountLimitValidator: SwiftlyFieldValidator {
   
   public enum LimitType {
@@ -111,20 +112,39 @@ public class CountLimitValidator: SwiftlyFieldValidator {
   }
   
   func validateValue(value: Any, config: Config) -> String? {
-    if let value = value as? String, config.limitType.isValid(string: value) {
+    guard let value = value as? SwiftlyCountable else {
       return nil
     }
-    else if let val = value as? (any Collection), config.limitType.isValid(count: val.count) {
-      return nil
+    if !config.limitType.isValid(count: value.getCount()) {
+      return generateErrorMessage(config: config)
     }
-    return generateErrorMessage(config: config)
+    return nil
   }
   
   func generateErrorMessage(config: Config) -> String {
     return config.limitType.getMessage(defaultMessage: config.invalidMessage)
   }
   
-  
+}
+
+public protocol SwiftlyCountable {
+  func getCount() -> Int
+}
+
+extension String: SwiftlyCountable {
+  public func getCount() -> Int { count }
+}
+
+extension Array: SwiftlyCountable {
+  public func getCount() -> Int { count }
+}
+
+extension Dictionary: SwiftlyCountable {
+  public func getCount() -> Int { count }
+}
+
+extension Set: SwiftlyCountable {
+  public func getCount() -> Int { count }
 }
 
 public extension View {

@@ -43,15 +43,17 @@ let package = Package(
           dependencies: ["SwiftlyFormsCore"]),
       
         .target(
-            name: "SwiftlyForms"),
+            name: "SwiftlyForms",
+            dependencies: ["SwiftlyFormsCore"]),
         .testTarget(
             name: "SwiftlyFormsTests",
-            dependencies: ["SwiftlyForms", "SwiftlyFormsCore"]),
+            dependencies: ["SwiftlyForms"]),
         
           .target(
-              name: "SwiftlyFormsField"),
+              name: "SwiftlyFormsField",
+              dependencies: ["SwiftlyForms"]),
           .testTarget(
               name: "SwiftlyFormsFieldTests",
-              dependencies: ["SwiftlyFormsField", "SwiftlyForms"]),
+              dependencies: ["SwiftlyFormsField"]),
     ]
 )
