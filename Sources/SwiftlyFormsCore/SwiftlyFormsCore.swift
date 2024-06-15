@@ -6,3 +6,9 @@
 //
 
 import Foundation
+
+public typealias SFs = SwiftlyFormsCore
+
+public enum SwiftlyFormsCore {
+  
+}
