@@ -40,7 +40,7 @@ extension SFs {
     @Published public var validationMode: FieldValidationMode = .change
     
     var validators: [ValidatorKey: ValidatorInstance] = [:]
-    var delegate: FieldStateChangeDelegate?
+    public var delegate: FieldStateChangeDelegate?
     
     required public init(fieldName: String, fieldType: FieldType) {
       self.fieldName = fieldName
@@ -79,7 +79,7 @@ extension SFs {
     }
     
     @MainActor
-    func onFocusValueChanged(isFocused: Bool) {
+    public func onFocusValueChanged(isFocused: Bool) {
       if self.validationMode.rawValue >= FieldValidationMode.manual.rawValue {
         return
       }
@@ -116,7 +116,7 @@ extension SFs {
   }
 }
 
-protocol FieldStateChangeDelegate {
+public protocol FieldStateChangeDelegate {
   func onStateChanged(state: SFs.FieldState)
 }
 

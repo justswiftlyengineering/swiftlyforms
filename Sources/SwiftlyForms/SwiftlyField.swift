@@ -26,7 +26,7 @@ public protocol SwiftlyField: View {
 }
 
 extension SwiftlyField {
-  func buildField<Content: View>(builder: () -> Content) -> some View {
+  public func buildField<Content: View>(builder: () -> Content) -> some View {
     validateFieldType {
       builder()
     }
@@ -40,7 +40,7 @@ extension SwiftlyField {
 public extension SwiftlyField {
   @MainActor
   var body: some View {
-    buildField{
+    buildField {
       self.interactiveField
     }
   }
