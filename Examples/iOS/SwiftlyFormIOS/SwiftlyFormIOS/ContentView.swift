@@ -32,7 +32,6 @@ struct ContentForm: View {
         SwiftlyFormField(FieldNames.amount, .text, title: "Amount") {
           SFTextField {
             Text("Enter Amount")
-//              .foregroundStyle()
           }
           .keyboardType(.numberPad)
           .swiftlyformValidator_required()
