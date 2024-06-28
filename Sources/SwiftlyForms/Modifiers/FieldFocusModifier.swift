@@ -1,9 +1,4 @@
-//
-//  File.swift
-//  
-//
-//  Created by Kembene Nkem on 15/06/2024.
-//
+
 
 import Foundation
 import SwiftlyFormsCore
@@ -25,7 +20,7 @@ struct FieldFocusModifier: ViewModifier {
   @State var errorMessage: String?
   @State var isValid: Bool = true
   @State var isDirty: Bool = false
-  @State var currentValue: Any?
+  @State var currentValue: EquatableValue?
   @State var usesFocusableField: Bool = true
   
   var focusIsActive: Bool {
@@ -66,7 +61,7 @@ struct FieldFocusModifier: ViewModifier {
         self.isDirty = new
       }
       .onChange(of: fieldState.value) { new in
-        self.currentValue = new?.value
+        self.currentValue = new
       }
       .onPreferenceChange(SwiftlyFormFieldUsesFocusableField.self) { value in
         self.usesFocusableField = value
@@ -84,7 +79,7 @@ struct FieldFocusModifier: ViewModifier {
     self.errorMessage = fieldState.errorMessage
     self.isValid = fieldState.isValid
     self.isDirty = fieldState.isDirty
-    self.currentValue = fieldState.value?.value
+    self.currentValue = fieldState.value
   }
   
   func onFocusStateChanged() {

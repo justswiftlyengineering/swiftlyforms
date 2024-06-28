@@ -17,6 +17,8 @@ extension SFs {
     public var fieldName: String
     
     /// The type of field
+    public var fieldStateType: FieldStateType
+    
     public var fieldType: FieldType
     
     /// The current value of the field
@@ -42,8 +44,9 @@ extension SFs {
     var validators: [ValidatorKey: ValidatorInstance] = [:]
     public var delegate: FieldStateChangeDelegate?
     
-    required public init(fieldName: String, fieldType: FieldType) {
+    required public init(fieldName: String, stateType: FieldStateType, fieldType: FieldType) {
       self.fieldName = fieldName
+      self.fieldStateType = stateType
       self.fieldType = fieldType
     }
     

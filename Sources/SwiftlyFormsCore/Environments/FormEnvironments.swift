@@ -13,6 +13,11 @@ private struct SwiftlyFormFieldName: EnvironmentKey {
   static let defaultValue: String = ""
 }
 
+private struct SwiftlyFormFieldStateType: EnvironmentKey {
+    // 1
+  static let defaultValue: SFs.FieldStateType = .generic
+}
+
 private struct SwiftlyFormFieldType: EnvironmentKey {
     // 1
   static let defaultValue: SFs.FieldType = .generic
@@ -40,7 +45,12 @@ private struct SwiftlyFormFieldErrorMessage: EnvironmentKey {
 
 private struct SwiftlyFormFieldCurrentValue: EnvironmentKey {
     // 1
-  static let defaultValue: Any? = nil
+  static let defaultValue: EquatableValue? = nil
+}
+
+private struct SwiftlyFormFieldTitle: EnvironmentKey {
+    // 1
+  static let defaultValue: String? = nil
 }
 
 public extension EnvironmentValues {
@@ -49,9 +59,19 @@ public extension EnvironmentValues {
     set { self[SwiftlyFormFieldName.self] = newValue }
   }
   
+  var swiftlyFormFieldStateType: SFs.FieldStateType {
+    get { self[SwiftlyFormFieldStateType.self] }
+    set { self[SwiftlyFormFieldStateType.self] = newValue }
+  }
+  
   var swiftlyFormFieldType: SFs.FieldType {
     get { self[SwiftlyFormFieldType.self] }
     set { self[SwiftlyFormFieldType.self] = newValue }
+  }
+  
+  var swiftlyFormFieldTitle: String? {
+    get { self[SwiftlyFormFieldTitle.self] }
+    set { self[SwiftlyFormFieldTitle.self] = newValue }
   }
   
   var swiftlyFormHasFocus: Bool {
@@ -74,7 +94,7 @@ public extension EnvironmentValues {
     set { self[SwiftlyFormFieldErrorMessage.self] = newValue }
   }
   
-  var swiftlyFormCurrentValue: Any? {
+  var swiftlyFormCurrentValue: EquatableValue? {
     get { self[SwiftlyFormFieldCurrentValue.self] }
     set { self[SwiftlyFormFieldCurrentValue.self] = newValue }
   }

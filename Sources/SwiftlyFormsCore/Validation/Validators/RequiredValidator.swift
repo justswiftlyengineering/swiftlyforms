@@ -22,8 +22,8 @@ public extension SwiftlyFieldValidatorType {
 public struct RequiredValidator: SwiftlyFieldValidator {
   
   public struct Config {
-    var invalidMessage: String
-    public init(message: String) {
+    var invalidMessage: String?
+    public init(message: String? = nil) {
       self.invalidMessage = message
     }
   }
@@ -45,13 +45,12 @@ public struct RequiredValidator: SwiftlyFieldValidator {
   func generateErrorMessage(config: Any?) -> String {
     (config as? Config)?.invalidMessage ?? "This field is required"
   }
-  
-  
+
 }
 
 public extension View {
   /// Adds a required validator to a Field using the provided ``RequiredValidator.Config`` config
   func swiftlyformValidator_required(_ config: RequiredValidator.Config? = nil) -> some View {
-    self.swiftlyform_addValidator(validator: .required, config: config)
+    self.swiftlyform_addValidator(validator: .required, config: config ?? RequiredValidator.Config.init())
   }
 }

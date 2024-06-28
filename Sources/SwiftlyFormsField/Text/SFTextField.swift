@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Kembene Nkem on 15/06/2024.
-//
-
 import Foundation
 import Combine
 import SwiftlyFormsCore
@@ -14,68 +7,52 @@ import SwiftUI
 public struct SFTextField<Placeholder>: SwiftlyField where Placeholder: View {
   
   @Environment(\.swiftlyFormFieldName) public var fieldName: String
-  @Environment(\.swiftlyFormFieldType) public var fieldType: SFs.FieldType
   
-  @EnvironmentObject var fieldState: SFs.FieldState
   @EnvironmentObject public var formManager: SwiftlyFormManager
+  @State public var fieldInternalValue: String = ""
   
-  @State private var isEnvironmentObjectSet = false
-  @State var fieldValue: String = ""
+  public var supportedFieldType: SFs.FieldType { .text }
   
   var config: Config
   var placeholder: () -> Placeholder
-  
-  public var supportedTypes: [SFs.FieldType] {
-    return [.text]
-  }
   
   public init(config: Config? = nil, placeholder: @escaping () -> Placeholder) {
     self.placeholder = placeholder
     self.config = config ?? Config()
   }
   
-  public var interactiveField: some View {
+  public func makeInteractiveBody(configuration: SwiftlyFieldConfiguration) -> some View {
     VStack{
       Group {
         if config.isSecured {
-          SecureField(text: $fieldValue) {
+          SecureField(text: $fieldInternalValue) {
             self.placeholder()
           }
         }
         else {
-          TextField(text: $fieldValue) {
+          TextField(text: $fieldInternalValue) {
             self.placeholder()
           }
         }
       }
-      .onChange(of: fieldValue) { new in
-        fieldState.setValue(value: .string(value: new))
-      }
-      .onChange(of: fieldState.value) { new in
-        fieldValue = (new?.value as? String) ?? ""
-      }
-    }
-    .onAppear {
-      if !isEnvironmentObjectSet {
-        isEnvironmentObjectSet = true
-        updateValueFromState()
-      }
     }
   }
   
-  private func updateValueFromState() {
-    guard let val: String = fieldState.forceValueType() else {
-      return
-    }
-    fieldValue = "\(val)"
+  public func setInternalFieldValue(value: String?) {
+    fieldInternalValue = value ?? ""
   }
   
   public struct Config {
     var isSecured = false
-    
     public init(isSecured: Bool = false) {
       self.isSecured = isSecured
     }
+  }
+  
+  public func onGainedFocus() {
+  }
+  
+  public func onLostFocus() {
   }
 }
 
@@ -86,6 +63,14 @@ public struct SFTextField<Placeholder>: SwiftlyField where Placeholder: View {
         Text("Enter username")
       }
     }
+}
+
+extension SFTextField where Placeholder == Text {
+  public init(_ placeholder: String = "", config: Config? = nil) {
+    self.init(config: config) {
+      Text(placeholder)
+    }
+  }
 }
 
 public extension SFs.FieldType {

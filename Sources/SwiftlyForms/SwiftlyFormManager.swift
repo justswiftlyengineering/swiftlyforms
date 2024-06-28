@@ -1,9 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Kembene Nkem on 15/06/2024.
-//
 
 import Foundation
 import SwiftUI
@@ -14,8 +8,8 @@ open class SwiftlyFormManager: ObservableObject {
   private var fieldState: [String: SFs.FieldState] = [:]
   private var fieldDefaults: [String: Int] = [:]
   private var fieldIndexes: [String] = []
-  private var fieldTypes: [String: SFs.FieldType] = [:]
-  private var fieldTypeStateCreator: [SFs.FieldType: SFs.FieldState.Type] = [:]
+  private var fieldTypes: [String: SFs.FieldStateType] = [:]
+  private var fieldTypeStateCreator: [SFs.FieldStateType: SFs.FieldState.Type] = [:]
   
   @Published public var formIsValid: Bool
   @Published public var focusedFieldName: String?
@@ -52,14 +46,18 @@ open class SwiftlyFormManager: ObservableObject {
   @MainActor
   public func addField<Content: View>(
     fieldName: String,
+    fieldStateType: SFs.FieldStateType,
     fieldType: SFs.FieldType,
     validationMode: SFs.FieldValidationMode? = nil,
+    title: String? = nil,
     creator: () -> Content) -> some View {
       return creator()
         .modifier(FieldFocusModifier())
+        .environment(\.swiftlyFormFieldStateType, fieldStateType)
         .environment(\.swiftlyFormFieldType, fieldType)
         .environment(\.swiftlyFormFieldName, fieldName)
-        .environmentObject(getFieldState(name: fieldName, type: fieldType))
+        .environment(\.swiftlyFormFieldTitle, title)
+        .environmentObject(getFieldState(name: fieldName, stateType: fieldStateType, type: fieldType))
         
         
   }
@@ -68,26 +66,33 @@ open class SwiftlyFormManager: ObservableObject {
   public func addFieldExporting<Content: View>(
     fieldName: String,
     fieldType: SFs.FieldType,
+    fieldStateType: SFs.FieldStateType = .generic,
     validationMode: SFs.FieldValidationMode? = nil,
+    title: String? = nil,
     creator: () -> Content) -> some View {
       return creator()
         .modifier(FieldFocusModifier())
-        .environment(\.swiftlyFormFieldType, fieldType)
+        .environment(\.swiftlyFormFieldStateType, fieldStateType)
         .environment(\.swiftlyFormFieldName, fieldName)
-        .environmentObject(getFieldState(name: fieldName, type: fieldType))
+        .environment(\.swiftlyFormFieldTitle, title)
+        .environment(\.swiftlyFormFieldType, fieldType)
+        .environmentObject(getFieldState(name: fieldName, stateType: fieldStateType, type: fieldType))
         .environmentObject(self)
         
         
   }
   
   @MainActor
-  public static func addField<Content: View>(manager: SwiftlyFormManager,
-                                  fieldName: String,
-                                  fieldType: SFs.FieldType,
-                                  validationMode: SFs.FieldValidationMode? = nil,
-                                  creator: () -> Content) -> some View {
+  public static func addField<Content: View>(
+    manager: SwiftlyFormManager,
+    fieldName: String,
+    fieldType: SFs.FieldType,
+    fieldStateType: SFs.FieldStateType = .generic,
+    validationMode: SFs.FieldValidationMode? = nil,
+    title: String? = nil,
+    creator: () -> Content) -> some View {
     return manager
-      .addFieldExporting(fieldName: fieldName, fieldType: fieldType, validationMode: validationMode, creator: creator)
+      .addFieldExporting(fieldName: fieldName, fieldType: fieldType, fieldStateType: fieldStateType, validationMode: validationMode, title: title, creator: creator)
   }
   
   @MainActor
@@ -98,16 +103,21 @@ open class SwiftlyFormManager: ObservableObject {
     }
   }
   
+  @MainActor
+  public func setValue<T: Equatable>(fieldName name: String, value: T?) {
+    getFieldState(fieldName: name)?.setValue(value: .typed(value: value), isDefault: false)
+  }
+  
   public func getFieldState(fieldName name: String) -> SFs.FieldState? {
     return fieldState[name]
   }
     
-  func getFieldState(name: String, type: SFs.FieldType, validationMode: SFs.FieldValidationMode? = nil) -> SFs.FieldState {
+  func getFieldState(name: String, stateType: SFs.FieldStateType, type: SFs.FieldType, validationMode: SFs.FieldValidationMode? = nil) -> SFs.FieldState {
     guard let state = fieldState[name] else {
-      let state = createStateForType(type: type, name: name)
+      let state = createStateForType(stateType: stateType, type: type, name: name)
       state.validationMode = validationMode ?? self.validationMode
       state.delegate = self
-      fieldTypes[name] = type
+      fieldTypes[name] = stateType
       fieldState[name] = state
       fieldIndexes.append(name)//[name] = fieldState.count
       return state
@@ -134,11 +144,11 @@ open class SwiftlyFormManager: ObservableObject {
     return self.formIsValid
   }
   
-  func createStateForType(type: SFs.FieldType, name: String) -> SFs.FieldState {
-    guard let registeredType = fieldTypeStateCreator[type] else {
-      return SFs.FieldState(fieldName: name, fieldType: type)
+  func createStateForType(stateType: SFs.FieldStateType, type: SFs.FieldType, name: String) -> SFs.FieldState {
+    guard let registeredType = fieldTypeStateCreator[stateType] else {
+      return SFs.FieldState(fieldName: name, stateType: stateType, fieldType: type)
     }
-    return registeredType.init(fieldName: name, fieldType: type)
+    return registeredType.init(fieldName: name, stateType: stateType, fieldType: type)
   }
   
   public func getFieldValue(fieldName: String) -> Any? {

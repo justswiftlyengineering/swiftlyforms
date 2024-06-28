@@ -6,3 +6,10 @@
 //
 
 import Foundation
+import SwiftlyFormsCore
+
+public extension SFs {
+  enum FormFields {
+    
+  }
+}
